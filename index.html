@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+	<head>
+		<title>Web Mapping via a GeoJSON Feed from Drupal 7</title>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css"/>
+		<style>
+			body {
+				padding: 0;
+				margin: 0;
+			}
+			
+			html, body, #map {
+				height: 100%;
+				width: 100%;
+			}
+			
+			.leaflet-popup-content-wrapper {
+				text-align: center;
+				<!--box-shadow: 10px 10px 14px rgba(0,0,0,0.4);-->
+			}
+			
+			.leaflet-popup-content p.title {
+				font-family: "Courier New", Courier, monospace;
+				font-size: 22px;
+			}
+			
+			.leaflet-popup-content p.desc {
+				font-family: "Courier New", Courier, monospace;
+				font-size: 14px;
+				font-style: italic;
+			}
+			
+			.leaflet-popup-content a {
+				font-family: "Courier New", Courier, monospace;
+				font-size: 26px;
+				font-variant: small-caps;
+				text-decoration: none;
+			}
+			
+			.leaflet-popup-content a:hover {
+				color: red;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+		<script src="https://raw.github.com/calvinmetcalf/leaflet-ajax/master/dist/leaflet.ajax.min.js"></script>
+		
+		<div id="map"</div>
+		
+		<script>
+			var map = L.map('map', {
+				center: [42.732536, -84.555534],
+				zoom: 6
+			});
+			
+			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
+			
+			
+			function popUp(feature, layer) {
+				if (feature.properties.Images != null && feature.properties.description != null) {
+					layer.bindPopup("<p class='title'>" + feature.properties.name + "</p><p class='desc'>" + feature.properties.description + "</p></br><img style='width: 280px;' src=" + feature.properties.Images + "/></br><a target='blank_' href=" + feature.properties.Path + "/>learn more</a>");
+				} else if (feature.properties.Images == null && feature.properties.description != null) {
+					layer.bindPopup("<p class='title'>" + feature.properties.name + "</p><p class='desc'>" + feature.properties.description + "</p><a target='blank_' href=" + feature.properties.Path + "/>learn more</a>");
+				} else if (feature.properties.Images != null && feature.properties.description == null) {
+					layer.bindPopup("<p class='title'>" + feature.properties.name + "</br></br><img style='width: 280px;' src=" + feature.properties.Images + "/></br><a target='blank_' href=" + feature.properties.Path + "/>learn more</a>");
+				} else {
+					layer.bindPopup("<p class='title'>" + feature.properties.name + "</p><a target='blank_' href=" + feature.properties.Path + "/>learn more</a>");
+				}
+			}
+			
+			//var geojsonLayer = new L.GeoJSON.AJAX('http://tncsandbox.greenlitestaging.com/points.geojson', {
+			var geojsonLayer = new L.GeoJSON.AJAX('https://greatlakesinform.org/wetlands.geojson', {
+				onEachFeature: popUp
+			});
+			
+			geojsonLayer.addTo(map);
+		</script>
+	</body>
+</html>
